@@ -1,0 +1,307 @@
+services:
+  postgres-auth:
+    image: postgres:15-alpine
+    container_name: dvorfs-postgres-auth
+    environment:
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: auth_password
+      POSTGRES_DB: auth_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data
+    networks:
+      - dvorfs-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-products:
+    image: postgres:15-alpine
+    container_name: dvorfs-postgres-products
+    environment:
+      POSTGRES_USER: products_user
+      POSTGRES_PASSWORD: products_password
+      POSTGRES_DB: products_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_products_data:/var/lib/postgresql/data
+    networks:
+      - dvorfs-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U products_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-orders:
+    image: postgres:15-alpine
+    container_name: dvorfs-postgres-orders
+    environment:
+      POSTGRES_USER: orders_user
+      POSTGRES_PASSWORD: orders_password
+      POSTGRES_DB: orders_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_orders_data:/var/lib/postgresql/data
+    networks:
+      - dvorfs-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orders_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-payments:
+    image: postgres:15-alpine
+    container_name: dvorfs-postgres-payments
+    environment:
+      POSTGRES_USER: payments_user
+      POSTGRES_PASSWORD: payments_password
+      POSTGRES_DB: payments_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_payments_data:/var/lib/postgresql/data
+    networks:
+      - dvorfs-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U payments_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-notifications:
+    image: postgres:15-alpine
+    container_name: dvorfs-postgres-notifications
+    environment:
+      POSTGRES_USER: notifications_user
+      POSTGRES_PASSWORD: notifications_password
+      POSTGRES_DB: notifications_db
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_notifications_data:/var/lib/postgresql/data
+    networks:
+      - dvorfs-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notifications_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: dvorfs-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - dvorfs-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./services/api-gateway/Dockerfile
+    container_name: dvorfs-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - FRONTEND_URL=http://localhost:3001
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - PRODUCTS_SERVICE_URL=http://products-service:3002
+      - ORDERS_SERVICE_URL=http://orders-service:3003
+      - PAYMENTS_SERVICE_URL=http://payments-service:3004
+      - NOTIFICATIONS_SERVICE_URL=http://notifications-service:3005
+    depends_on:
+      - auth-service
+      - products-service
+      - orders-service
+      - payments-service
+      - notifications-service
+    networks:
+      - dvorfs-network
+    restart: unless-stopped
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./services/auth-service/Dockerfile
+    container_name: dvorfs-auth-service
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DB_HOST=postgres-auth
+      - DB_PORT=5432
+      - DB_NAME=auth_db
+      - DB_USER=auth_user
+      - DB_PASSWORD=auth_password
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
+      - FRONTEND_URL=http://localhost:3001
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+    networks:
+      - dvorfs-network
+    restart: unless-stopped
+
+  products-service:
+    build:
+      context: .
+      dockerfile: ./services/products-service/Dockerfile
+    container_name: dvorfs-products-service
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - DB_HOST=postgres-products
+      - DB_PORT=5432
+      - DB_NAME=products_db
+      - DB_USER=products_user
+      - DB_PASSWORD=products_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - FRONTEND_URL=http://localhost:3001
+    depends_on:
+      postgres-products:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dvorfs-network
+    restart: unless-stopped
+
+  orders-service:
+    build:
+      context: .
+      dockerfile: ./services/orders-service/Dockerfile
+    container_name: dvorfs-orders-service
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - DB_HOST=postgres-orders
+      - DB_PORT=5432
+      - DB_NAME=orders_db
+      - DB_USER=orders_user
+      - DB_PASSWORD=orders_password
+      - PRODUCTS_SERVICE_URL=http://products-service:3002
+      - FRONTEND_URL=http://localhost:3001
+    depends_on:
+      postgres-orders:
+        condition: service_healthy
+      products-service:
+        condition: service_started
+    networks:
+      - dvorfs-network
+    restart: unless-stopped
+
+  payments-service:
+    build:
+      context: .
+      dockerfile: ./services/payments-service/Dockerfile
+    container_name: dvorfs-payments-service
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=production
+      - PORT=3004
+      - DB_HOST=postgres-payments
+      - DB_PORT=5432
+      - DB_NAME=payments_db
+      - DB_USER=payments_user
+      - DB_PASSWORD=payments_password
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
+      - YOOKASSA_SHOP_ID=${YOOKASSA_SHOP_ID:-}
+      - YOOKASSA_SECRET_KEY=${YOOKASSA_SECRET_KEY:-}
+      - YOOKASSA_RETURN_URL=${YOOKASSA_RETURN_URL:-http://localhost:3001/payment-success}
+      - ORDERS_SERVICE_URL=http://orders-service:3003
+      - FRONTEND_URL=http://localhost:3001
+    depends_on:
+      postgres-payments:
+        condition: service_healthy
+      orders-service:
+        condition: service_started
+    networks:
+      - dvorfs-network
+    restart: unless-stopped
+
+  notifications-service:
+    build:
+      context: .
+      dockerfile: ./services/notifications-service/Dockerfile
+    container_name: dvorfs-notifications-service
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=production
+      - PORT=3005
+      - DB_HOST=postgres-notifications
+      - DB_PORT=5432
+      - DB_NAME=notifications_db
+      - DB_USER=notifications_user
+      - DB_PASSWORD=notifications_password
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_SECURE=${SMTP_SECURE:-false}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_FROM=${SMTP_FROM:-noreply@dvorfs-market.com}
+      - FRONTEND_URL=http://localhost:3001
+    depends_on:
+      postgres-notifications:
+        condition: service_healthy
+    networks:
+      - dvorfs-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dvorfs-frontend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:3000/api
+    depends_on:
+      - api-gateway
+    networks:
+      - dvorfs-network
+    restart: unless-stopped
+
+volumes:
+  postgres_auth_data:
+  postgres_products_data:
+  postgres_orders_data:
+  postgres_payments_data:
+  postgres_notifications_data:
+  redis_data:
+
+networks:
+  dvorfs-network:
+    driver: bridge
+

@@ -1,0 +1,28 @@
+# Пример файла для переопределения переменных окружения
+# Скопируйте этот файл в docker-compose.override.yml и настройте под свои нужды
+
+version: '3.8'
+
+services:
+  auth-service:
+    environment:
+      - JWT_SECRET=your-production-secret-key-here
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=your-email@gmail.com
+      - SMTP_PASSWORD=your-app-password
+
+  payments-service:
+    environment:
+      - STRIPE_SECRET_KEY=sk_live_...
+      - STRIPE_WEBHOOK_SECRET=whsec_...
+      - YOOKASSA_SHOP_ID=your-shop-id
+      - YOOKASSA_SECRET_KEY=your-secret-key
+
+  notifications-service:
+    environment:
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=your-email@gmail.com
+      - SMTP_PASSWORD=your-app-password
+

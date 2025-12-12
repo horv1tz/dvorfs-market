@@ -1,0 +1,77 @@
+version: '3.8'
+
+# Development override file
+# Use: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  api-gateway:
+    build:
+      target: development
+    volumes:
+      - ./services/api-gateway:/app
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+
+  auth-service:
+    build:
+      target: development
+    volumes:
+      - ./services/auth-service:/app
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+
+  products-service:
+    build:
+      target: development
+    volumes:
+      - ./services/products-service:/app
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+
+  orders-service:
+    build:
+      target: development
+    volumes:
+      - ./services/orders-service:/app
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+
+  payments-service:
+    build:
+      target: development
+    volumes:
+      - ./services/payments-service:/app
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+
+  notifications-service:
+    build:
+      target: development
+    volumes:
+      - ./services/notifications-service:/app
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+
+  frontend:
+    build:
+      target: development
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+
