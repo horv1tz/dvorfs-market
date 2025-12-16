@@ -18,3 +18,4 @@ export async function down(knex: Knex): Promise<void> {
   return knex.schema.dropTable('password_reset_tokens');
 }
 
+

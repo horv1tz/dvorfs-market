@@ -1,14 +1,11 @@
-import type { Knex } from 'knex';
-import dotenv from 'dotenv';
+require('dotenv').config();
 
-dotenv.config();
-
-const config: { [key: string]: Knex.Config } = {
+const config = {
   development: {
     client: 'postgresql',
     connection: {
       host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5436'),
+      port: parseInt(process.env.DB_PORT || '5432'),
       database: process.env.DB_NAME || 'notifications_db',
       user: process.env.DB_USER || 'notifications_user',
       password: process.env.DB_PASSWORD || 'notifications_password',
@@ -20,6 +17,9 @@ const config: { [key: string]: Knex.Config } = {
     migrations: {
       tableName: 'knex_migrations',
       directory: './src/database/migrations',
+    },
+    seeds: {
+      directory: './src/database/seeds',
     },
   },
 
@@ -44,5 +44,4 @@ const config: { [key: string]: Knex.Config } = {
   },
 };
 
-export default config;
-
+module.exports = config;

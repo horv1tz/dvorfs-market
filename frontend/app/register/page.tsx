@@ -34,12 +34,15 @@ export default function RegisterPage() {
   });
 
   const onSubmit: SubmitHandler<z.infer<typeof registerSchema>> = async (data) => {
+    console.log('Form submitted:', data);
     setLoading(true);
     try {
+      console.log('Sending request to API...');
       const response = await authAPI.register({
         email: data.email,
         password: data.password,
       });
+      console.log('Response:', response.data);
       if (response.data.success) {
         const { user, accessToken, refreshToken } = response.data.data;
         setAuth(user, accessToken, refreshToken);
@@ -49,6 +52,7 @@ export default function RegisterPage() {
         router.push('/');
       }
     } catch (error: any) {
+      console.error('Registration error:', error);
       toast.error(error.response?.data?.error || 'Ошибка регистрации');
     } finally {
       setLoading(false);
@@ -56,55 +60,69 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
-        <h1 className="text-2xl font-bold mb-6 text-center">Регистрация</h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <input
-              {...register('email')}
-              type="email"
-              className="w-full px-3 py-2 border rounded-md"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-            )}
+    <div className="min-h-screen flex items-center justify-center bg-slate-900 px-4">
+      <div className="relative max-w-md w-full overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/80 shadow-2xl shadow-purple-500/10">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-cyan-500/8 to-blue-600/10 blur-3xl" />
+        <div className="relative p-8 space-y-6">
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-bold text-slate-50">Регистрация</h1>
+            <p className="text-slate-400 text-sm">Создайте аккаунт, чтобы продолжить</p>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Пароль</label>
-            <input
-              {...register('password')}
-              type="password"
-              className="w-full px-3 py-2 border rounded-md"
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
-            )}
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-slate-300">Email</label>
+              <input
+                {...register('email')}
+                type="email"
+                placeholder="example@email.com"
+                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-slate-100 placeholder-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 transition"
+              />
+              {errors.email && (
+                <p className="text-red-400 text-sm">{errors.email.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-slate-300">Пароль</label>
+              <input
+                {...register('password')}
+                type="password"
+                placeholder="Минимум 8 символов"
+                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-slate-100 placeholder-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 transition"
+              />
+              {errors.password && (
+                <p className="text-red-400 text-sm">{errors.password.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-slate-300">Подтвердите пароль</label>
+              <input
+                {...register('confirmPassword')}
+                type="password"
+                placeholder="Повторите пароль"
+                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-slate-100 placeholder-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 transition"
+              />
+              {errors.confirmPassword && (
+                <p className="text-red-400 text-sm">{errors.confirmPassword.message}</p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-lg bg-cyan-500 py-2 font-semibold text-slate-900 hover:bg-cyan-400 transition shadow-lg shadow-cyan-500/30 disabled:opacity-60"
+            >
+              {loading ? 'Регистрация...' : 'Зарегистрироваться'}
+            </button>
+          </form>
+
+          <div className="text-center text-sm text-slate-400">
+            <Link href="/login" className="hover:text-cyan-300 transition">
+              Уже есть аккаунт? Войти
+            </Link>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Подтвердите пароль</label>
-            <input
-              {...register('confirmPassword')}
-              type="password"
-              className="w-full px-3 py-2 border rounded-md"
-            />
-            {errors.confirmPassword && (
-              <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>
-            )}
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-primary-600 text-white py-2 rounded-md hover:bg-primary-700 disabled:opacity-50"
-          >
-            {loading ? 'Регистрация...' : 'Зарегистрироваться'}
-          </button>
-        </form>
-        <div className="mt-4 text-center">
-          <Link href="/login" className="text-primary-600 hover:underline">
-            Уже есть аккаунт? Войти
-          </Link>
         </div>
       </div>
     </div>

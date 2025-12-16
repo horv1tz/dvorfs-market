@@ -33,7 +33,7 @@ export default function ProductGrid() {
   }, []);
 
   if (loading) {
-    return <div className="text-center py-8">Загрузка...</div>;
+    return <div className="text-center py-8 text-slate-300">Загрузка...</div>;
   }
 
   return (
@@ -42,24 +42,25 @@ export default function ProductGrid() {
         <Link
           key={product.id}
           href={`/products/${product.id}`}
-          className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+          className="bg-slate-900/70 border border-slate-800 rounded-xl shadow-lg overflow-hidden hover:-translate-y-1 hover:shadow-primary/20 transition-all duration-200"
         >
-          <div className="aspect-square bg-gray-200 flex items-center justify-center">
+          <div className="aspect-square bg-slate-800 flex items-center justify-center">
             {product.images && product.images.length > 0 ? (
               <img
                 src={product.images[0]}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-200 hover:scale-105"
               />
             ) : (
-              <span className="text-gray-400">Нет изображения</span>
+              <span className="text-slate-500">Нет изображения</span>
             )}
           </div>
-          <div className="p-4">
-            <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-            <p className="text-primary-600 font-bold text-xl">
+          <div className="p-4 space-y-2">
+            <h3 className="font-semibold text-lg text-slate-100">{product.name}</h3>
+            <p className="text-primary-300 font-bold text-xl">
               {product.price.toLocaleString('ru-RU')} ₽
             </p>
+            <p className="text-slate-500 text-sm">Подробнее →</p>
           </div>
         </Link>
       ))}

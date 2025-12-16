@@ -128,3 +128,4 @@ export const notificationsAPI = {
     api.put('/notifications/preferences', data),
 };
 
+

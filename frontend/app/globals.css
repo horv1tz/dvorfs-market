@@ -3,26 +3,26 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+  --background: #0b1120;
+  --background-secondary: #0f172a;
+  --card: #0f172a;
+  --card-hover: #111827;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --primary: #0ea5e9;
+  --primary-strong: #0284c7;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  color: var(--text);
+  background: radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.12), transparent 25%),
+    radial-gradient(circle at 80% 30%, rgba(16, 185, 129, 0.12), transparent 25%),
+    radial-gradient(circle at 50% 80%, rgba(99, 102, 241, 0.12), transparent 28%),
+    var(--background);
+  min-height: 100vh;
+}
+
+* {
+  scroll-behavior: smooth;
 }
 

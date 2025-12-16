@@ -12,3 +12,4 @@ npm run migrate
 echo "Starting service..."
 exec "$@"
 
+

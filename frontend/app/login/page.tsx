@@ -49,49 +49,57 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
-        <h1 className="text-2xl font-bold mb-6 text-center">Вход</h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <input
-              {...register('email')}
-              type="email"
-              className="w-full px-3 py-2 border rounded-md"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-            )}
+    <div className="min-h-screen flex items-center justify-center bg-slate-900 px-4">
+      <div className="relative max-w-md w-full overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/80 shadow-2xl shadow-cyan-500/10">
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-purple-600/10 blur-3xl" />
+        <div className="relative p-8 space-y-6">
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-bold text-slate-50">Вход</h1>
+            <p className="text-slate-400 text-sm">Рады видеть вас снова</p>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Пароль</label>
-            <input
-              {...register('password')}
-              type="password"
-              className="w-full px-3 py-2 border rounded-md"
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
-            )}
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-slate-300">Email</label>
+              <input
+                {...register('email')}
+                type="email"
+                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-slate-100 placeholder-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 transition"
+              />
+              {errors.email && (
+                <p className="text-red-400 text-sm">{errors.email.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-slate-300">Пароль</label>
+              <input
+                {...register('password')}
+                type="password"
+                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-slate-100 placeholder-slate-500 focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 transition"
+              />
+              {errors.password && (
+                <p className="text-red-400 text-sm">{errors.password.message}</p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-lg bg-cyan-500 py-2 font-semibold text-slate-900 hover:bg-cyan-400 transition shadow-lg shadow-cyan-500/30 disabled:opacity-60"
+            >
+              {loading ? 'Вход...' : 'Войти'}
+            </button>
+          </form>
+
+          <div className="flex items-center justify-between text-sm text-slate-400">
+            <Link href="/register" className="hover:text-cyan-300 transition">
+              Нет аккаунта? Зарегистрироваться
+            </Link>
+            <Link href="/forgot-password" className="hover:text-cyan-300 transition">
+              Забыли пароль?
+            </Link>
           </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-primary-600 text-white py-2 rounded-md hover:bg-primary-700 disabled:opacity-50"
-          >
-            {loading ? 'Вход...' : 'Войти'}
-          </button>
-        </form>
-        <div className="mt-4 text-center">
-          <Link href="/register" className="text-primary-600 hover:underline">
-            Нет аккаунта? Зарегистрироваться
-          </Link>
-        </div>
-        <div className="mt-2 text-center">
-          <Link href="/forgot-password" className="text-sm text-gray-600 hover:underline">
-            Забыли пароль?
-          </Link>
         </div>
       </div>
     </div>

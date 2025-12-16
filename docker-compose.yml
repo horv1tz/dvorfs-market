@@ -142,7 +142,7 @@ services:
       dockerfile: ./services/auth-service/Dockerfile
     container_name: dvorfs-auth-service
     ports:
-      - "3001:3001"
+      - "3006:3001"
     environment:
       - NODE_ENV=production
       - PORT=3001

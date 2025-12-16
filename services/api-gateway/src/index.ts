@@ -12,11 +12,23 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:3001')
+  .split(',')
+  .map((o) => o.trim());
+
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+  origin: allowedOrigins,
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id'],
+}));
+app.options('*', cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id'],
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -50,10 +62,11 @@ const SERVICES = {
 // Proxy middleware configuration
 const proxyOptions = {
   changeOrigin: true,
-  pathRewrite: {
-    '^/api': '', // Remove /api prefix when forwarding
-  },
+  timeout: 30000,
+  proxyTimeout: 30000,
+  logLevel: 'debug' as const,
   onProxyReq: (proxyReq: any, req: express.Request) => {
+    logger.info(`Proxying request to: ${proxyReq.path}`);
     // Forward original headers
     if (req.headers.authorization) {
       proxyReq.setHeader('Authorization', req.headers.authorization);
@@ -62,13 +75,18 @@ const proxyOptions = {
       proxyReq.setHeader('x-user-id', req.headers['x-user-id']);
     }
   },
+  onProxyRes: (proxyRes: any, req: express.Request, res: express.Response) => {
+    logger.info(`Received response from proxy: ${proxyRes.statusCode}`);
+  },
   onError: (err: Error, req: express.Request, res: express.Response) => {
     logger.error('Proxy error', { error: err.message, path: req.path });
-    res.status(503).json({
-      success: false,
-      error: 'Service unavailable',
-      message: 'The requested service is temporarily unavailable',
-    });
+    if (!res.headersSent) {
+      res.status(503).json({
+        success: false,
+        error: 'Service unavailable',
+        message: 'The requested service is temporarily unavailable',
+      });
+    }
   },
 };
 
@@ -81,45 +99,69 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', createProxyMiddleware({
   ...proxyOptions,
   target: SERVICES.auth,
+  pathRewrite: {
+    '^/api/auth': '', // Remove /api/auth prefix
+  },
 }));
 
 // Products Service routes
 app.use('/api/products', createProxyMiddleware({
   ...proxyOptions,
   target: SERVICES.products,
+  pathRewrite: {
+    '^/api/products': '/products', // Rewrite to /products
+  },
 }));
 
 app.use('/api/categories', createProxyMiddleware({
   ...proxyOptions,
   target: SERVICES.products,
+  pathRewrite: {
+    '^/api/categories': '/categories', // Rewrite to /categories
+  },
 }));
 
 app.use('/api/wishlist', createProxyMiddleware({
   ...proxyOptions,
   target: SERVICES.products,
+  pathRewrite: {
+    '^/api/wishlist': '/wishlist', // Rewrite to /wishlist
+  },
 }));
 
 // Orders Service routes
 app.use('/api/cart', createProxyMiddleware({
   ...proxyOptions,
   target: SERVICES.orders,
+  pathRewrite: {
+    '^/api/cart': '/cart', // Rewrite to /cart
+  },
 }));
 
 app.use('/api/orders', createProxyMiddleware({
   ...proxyOptions,
   target: SERVICES.orders,
+  pathRewrite: {
+    '^/api/orders': '/orders', // Rewrite to /orders
+  },
 }));
 
 // Payments Service routes
 app.use('/api/payments', createProxyMiddleware({
   ...proxyOptions,
   target: SERVICES.payments,
+  pathRewrite: {
+    '^/api/payments': '/payments', // Rewrite to /payments
+  },
 }));
 
 // Notifications Service routes
 app.use('/api/notifications', createProxyMiddleware({
   ...proxyOptions,
   target: SERVICES.notifications,
+  pathRewrite: {
+    '^/api/notifications': '/notifications', // Rewrite to /notifications
+  },
 }));
 
 // Error handling

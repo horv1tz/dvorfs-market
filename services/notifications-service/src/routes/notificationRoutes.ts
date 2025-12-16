@@ -20,3 +20,4 @@ router.put('/preferences', authenticate, updatePreferences);
 
 export default router;
 
+
