@@ -15,3 +15,4 @@ router.delete('/:productId', authenticate, requireAuth, removeFromWishlist);
 export default router;
 
 
+

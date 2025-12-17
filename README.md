@@ -126,7 +126,7 @@ docker-compose exec auth-service npm run migrate
 ## Порты сервисов
 
 - API Gateway: http://localhost:3000
-- Auth Service: http://localhost:3001
+- Auth Service: http://localhost:3007 (внутренний порт 3001)
 - Products Service: http://localhost:3002
 - Orders Service: http://localhost:3003
 - Payments Service: http://localhost:3004

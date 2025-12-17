@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../../shared/utils/jwt';
 
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+
 export interface AuthRequest extends Request {
   user?: {
     id: string;
@@ -22,8 +24,6 @@ export const authenticate = async (
     }
 
     const token = authHeader.substring(7);
-    const { verifyToken } = await import('../../shared/utils/jwt');
-    const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
     const payload = verifyToken(token, JWT_SECRET);
 
     req.user = {

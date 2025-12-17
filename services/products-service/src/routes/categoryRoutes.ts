@@ -19,3 +19,4 @@ router.delete('/:id', authenticate, requireAuth, requireAdmin, deleteCategory);
 export default router;
 
 
+

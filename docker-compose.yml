@@ -142,7 +142,7 @@ services:
       dockerfile: ./services/auth-service/Dockerfile
     container_name: dvorfs-auth-service
     ports:
-      - "3006:3001"
+      - "3007:3001"
     environment:
       - NODE_ENV=production
       - PORT=3001
@@ -181,6 +181,7 @@ services:
       - DB_PASSWORD=products_password
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
       - FRONTEND_URL=http://localhost:3001
     depends_on:
       postgres-products:
@@ -206,6 +207,7 @@ services:
       - DB_NAME=orders_db
       - DB_USER=orders_user
       - DB_PASSWORD=orders_password
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
       - PRODUCTS_SERVICE_URL=http://products-service:3002
       - FRONTEND_URL=http://localhost:3001
     depends_on:
@@ -232,6 +234,7 @@ services:
       - DB_NAME=payments_db
       - DB_USER=payments_user
       - DB_PASSWORD=payments_password
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
       - YOOKASSA_SHOP_ID=${YOOKASSA_SHOP_ID:-}
@@ -263,6 +266,7 @@ services:
       - DB_NAME=notifications_db
       - DB_USER=notifications_user
       - DB_PASSWORD=notifications_password
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-in-production}
       - SMTP_HOST=${SMTP_HOST:-}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_SECURE=${SMTP_SECURE:-false}

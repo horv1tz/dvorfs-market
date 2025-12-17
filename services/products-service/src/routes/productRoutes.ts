@@ -21,3 +21,4 @@ router.delete('/:id', authenticate, requireAuth, requireAdmin, deleteProduct);
 export default router;
 
 
+

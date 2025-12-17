@@ -30,8 +30,6 @@ app.options('*', cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id'],
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -62,11 +60,12 @@ const SERVICES = {
 // Proxy middleware configuration
 const proxyOptions = {
   changeOrigin: true,
-  timeout: 30000,
-  proxyTimeout: 30000,
-  logLevel: 'debug' as const,
+  timeout: 10000,
+  proxyTimeout: 10000,
+  logLevel: 'warn' as const,
+  parseReqBody: true,
   onProxyReq: (proxyReq: any, req: express.Request) => {
-    logger.info(`Proxying request to: ${proxyReq.path}`);
+    logger.info(`Proxying ${req.method} request to: ${proxyReq.path}`);
     // Forward original headers
     if (req.headers.authorization) {
       proxyReq.setHeader('Authorization', req.headers.authorization);
@@ -76,10 +75,10 @@ const proxyOptions = {
     }
   },
   onProxyRes: (proxyRes: any, req: express.Request, res: express.Response) => {
-    logger.info(`Received response from proxy: ${proxyRes.statusCode}`);
+    logger.info(`Received response from proxy: ${proxyRes.statusCode} for ${req.method} ${req.path}`);
   },
   onError: (err: Error, req: express.Request, res: express.Response) => {
-    logger.error('Proxy error', { error: err.message, path: req.path });
+    logger.error('Proxy error', { error: err.message, path: req.path, method: req.method });
     if (!res.headersSent) {
       res.status(503).json({
         success: false,

@@ -11,8 +11,8 @@ COPY shared ./shared
 CMD ["npm", "run", "dev"]
 
 FROM base AS build
-COPY shared ./shared
 COPY services/auth-service ./
+COPY shared ./shared
 RUN npm run build
 
 FROM node:18-alpine AS production
@@ -25,7 +25,6 @@ ENV NODE_ENV=production
 COPY --from=build /app/package*.json ./
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/knexfile.ts ./
 COPY --from=build /app/shared ./shared
 COPY services/auth-service/docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
